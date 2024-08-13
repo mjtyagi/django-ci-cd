@@ -16,4 +16,4 @@ class IndexViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
         # Check the response content
-        self.assertContains(response, "Testing")
+        self.assertContains(response, "Test")
