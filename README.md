@@ -1,2 +1,2 @@
 # django-ci-cd
-Test pipeline.
+Test pipeline (updated)
