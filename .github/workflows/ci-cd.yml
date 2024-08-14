@@ -25,7 +25,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
         ports:
-          - 5432:5432
+          - 1432:1432
 
     steps:
     - uses: actions/checkout@v2
@@ -50,10 +50,10 @@ jobs:
         pytest
 
     - name: Build Docker image
-      run: docker build -t django-ci-cd .
+      run: docker build -t myproject .
 
     - name: Run Docker container
-      run: docker run -d -p 8072:8072 django-ci-cd
+      run: docker run -d -p 8072:8072 myproject
 
     - name: Check container status
       run: docker ps -a
