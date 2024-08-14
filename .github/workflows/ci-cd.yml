@@ -33,7 +33,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.11
 
     - name: Install dependencies
       run: |
@@ -50,10 +50,10 @@ jobs:
         pytest
 
     - name: Build Docker image
-      run: docker build -t myproject .
+      run: docker build -t django-ci-cd .
 
     - name: Run Docker container
-      run: docker run -d -p 8072:8072 myproject
+      run: docker run -d -p 8072:8072 django-ci-cd
 
     - name: Check container status
       run: docker ps -a
