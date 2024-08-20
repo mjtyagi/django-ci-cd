@@ -79,6 +79,3 @@ jobs:
         else
           echo "No container found with the name 'django-ci-cd'."
         fi
-
-    - name: Clean Up
-      run: docker stop $(docker ps -aqf "name=django-ci-cd") && docker rm $(docker ps -aqf "name=django-ci-cd")
