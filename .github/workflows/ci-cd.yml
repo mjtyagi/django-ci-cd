@@ -70,8 +70,5 @@ jobs:
     - name: Verify Docker container
       run: docker run -d -p 8072:8072 django-ci-cd && sleep 10 && docker ps -a
 
-    - name: Check Container Logs (optional)
-      run: docker logs $(docker ps -aqf "name=django-ci-cd")
-
     - name: Clean Up
       run: docker stop $(docker ps -aqf "name=django-ci-cd") && docker rm $(docker ps -aqf "name=django-ci-cd")
