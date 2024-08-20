@@ -70,5 +70,15 @@ jobs:
     - name: Verify Docker container
       run: docker run -d -p 8072:8072 django-ci-cd && sleep 10 && docker ps -a
 
+    - name: Stop and Remove Docker Container
+      run: |
+        CONTAINER_ID=$(docker ps -aqf "name=django-ci-cd")
+        if [ -n "$CONTAINER_ID" ]; then
+          docker stop $CONTAINER_ID
+          docker rm $CONTAINER_ID
+        else
+          echo "No container found with the name 'django-ci-cd'."
+        fi
+
     - name: Clean Up
       run: docker stop $(docker ps -aqf "name=django-ci-cd") && docker rm $(docker ps -aqf "name=django-ci-cd")
