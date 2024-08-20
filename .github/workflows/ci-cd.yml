@@ -1,20 +1,18 @@
-name: Django CI/CD
+name: CI - Test and Build
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:latest
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: postgres
@@ -25,7 +23,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
         ports:
-          - 1432:1432
+          - 5432:5432  # Use standard Postgres port
 
     steps:
     - uses: actions/checkout@v2
@@ -36,23 +34,44 @@ jobs:
         python-version: 3.11
 
     - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Wait for Postgres to be ready
       run: |
-        pip install -r requirements.txt
+        until pg_isready -h localhost -p 5432 -U postgres; do
+          echo "Waiting for Postgres..."
+          sleep 5
+        done
+
+    - name: Run Migrations
+      env:
+        POSTGRES_DB: test_db
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      run: python manage.py migrate
 
     - name: Run Tests
       env:
         POSTGRES_DB: test_db
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
-      run: |
-        python manage.py migrate
-        python manage.py test
+      run: python manage.py test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Build Docker image
       run: docker build -t django-ci-cd .
 
-    - name: Run Docker container
-      run: docker run -d -p 8072:8072 django-ci-cd
+    - name: Verify Docker container
+      run: docker run -d -p 8072:8072 django-ci-cd && sleep 10 && docker ps -a
 
-    - name: Check container status
-      run: docker ps -a
+    - name: Check Container Logs (optional)
+      run: docker logs $(docker ps -aqf "name=django-ci-cd")
+
+    - name: Clean Up
+      run: docker stop $(docker ps -aqf "name=django-ci-cd") && docker rm $(docker ps -aqf "name=django-ci-cd")
